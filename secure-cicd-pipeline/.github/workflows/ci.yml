@@ -1,0 +1,47 @@
+name: CI (GitHub Actions reference)
+
+# This mirrors what Jenkins does — useful to test locally before
+# wiring up the full Jenkins pipeline.
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run unit tests
+        run: mvn test
+        working-directory: app
+
+      - name: Build Docker image
+        run: docker build -t secure-cicd-demo:${{ github.run_number }} .
+
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: secure-cicd-demo:${{ github.run_number }}
+          format: table
+          exit-code: '1'
+          severity: HIGH,CRITICAL
+
+      - name: Push to DockerHub
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker tag secure-cicd-demo:${{ github.run_number }} \
+            ${{ secrets.DOCKER_USERNAME }}/secure-cicd-demo:${{ github.run_number }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/secure-cicd-demo:${{ github.run_number }}

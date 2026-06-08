@@ -1,0 +1,10 @@
+target/
+*.class
+*.jar
+*.war
+.mvn/
+!.mvn/wrapper/
+.idea/
+*.iml
+.DS_Store
+trivy-report.txt
