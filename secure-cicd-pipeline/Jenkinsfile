@@ -8,10 +8,10 @@ pipeline {
 
         // Change to your registry: ECR format → 123456789.dkr.ecr.ap-south-1.amazonaws.com
         // DockerHub format → yourdockerhubusername
-        REGISTRY     = "yourdockerhubusername"
+        REGISTRY     = "02497"
 
         FULL_IMAGE   = "${REGISTRY}/${APP_NAME}:${IMAGE_TAG}"
-        SONAR_URL    = "http://localhost:9000"     // or your SonarQube server IP
+        SONAR_URL    =  "http://43.204.212.141:9000/"      // or your SonarQube server IP
     }
 
     options {
