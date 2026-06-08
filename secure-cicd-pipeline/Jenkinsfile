@@ -31,31 +31,30 @@ pipeline {
         }
 
         // ── 2. Unit tests ─────────────────────────────────────────────────────
-        stage('Unit tests') {
+     stage('Unit tests') {
     steps {
-        sh 'mvn test'    // remove the dir('app') { } wrapper
+        sh 'mvn test'        // no dir('app') wrapper
     }
     post {
         always {
-            junit '**/target/surefire-reports/*.xml'  // ** catches any subdirectory
+            junit allowEmptyResults: true, 
+                  testResults: '**/target/surefire-reports/*.xml'
         }
     }
 }
         // ── 3. SonarQube SAST ─────────────────────────────────────────────────
-        stage('SonarQube analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    steps {
-                        sh """
-                            mvn sonar:sonar \
-                              -Dsonar.projectKey=${APP_NAME} \
-                              -Dsonar.host.url=${SONAR_URL} \
-                              -Dsonar.login=${SONAR_AUTH_TOKEN}
-                        """
-                    }
-                }
-            }
+       stage('SonarQube analysis') {
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            sh """
+                mvn sonar:sonar \
+                  -Dsonar.projectKey=${APP_NAME} \
+                  -Dsonar.host.url=${SONAR_URL} \
+                  -Dsonar.login=${SONAR_AUTH_TOKEN}
+            """
         }
+    }
+}
 
         // ── 4. Quality gate (blocks pipeline if SonarQube fails) ─────────────
         stage('Quality gate') {
