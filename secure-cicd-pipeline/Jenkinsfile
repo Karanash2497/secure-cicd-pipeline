@@ -32,23 +32,20 @@ pipeline {
 
         // ── 2. Unit tests ─────────────────────────────────────────────────────
         stage('Unit tests') {
-            steps {
-                dir('app') {
-                    sh 'mvn test'
-                }
-            }
-            post {
-                always {
-                    junit 'app/target/surefire-reports/*.xml'
-                }
-            }
+    steps {
+        sh 'mvn test'    // remove the dir('app') { } wrapper
+    }
+    post {
+        always {
+            junit '**/target/surefire-reports/*.xml'  // ** catches any subdirectory
         }
-
+    }
+}
         // ── 3. SonarQube SAST ─────────────────────────────────────────────────
         stage('SonarQube analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    dir('app') {
+                    steps {
                         sh """
                             mvn sonar:sonar \
                               -Dsonar.projectKey=${APP_NAME} \
