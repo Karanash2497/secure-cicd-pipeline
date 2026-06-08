@@ -85,8 +85,7 @@ pipeline {
                 sh """
                     trivy image \
                         --exit-code 1 \
-                        --severity HIGH,CRITICAL \
-                        --ignore-unfixed \        # ← add this flag
+                        --severity HIGH,CRITICAL \       
                         --no-progress \
                         --format table \
                         ${APP_NAME}:${IMAGE_TAG}
