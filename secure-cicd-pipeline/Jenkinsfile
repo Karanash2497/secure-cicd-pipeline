@@ -33,11 +33,13 @@ pipeline {
         // ── 2. Unit tests ─────────────────────────────────────────────────────
      stage('Unit tests') {
     steps {
-        sh 'mvn test'        // no dir('app') wrapper
+        dir('app') {          // ← this must be here
+            sh 'mvn test'
+        }
     }
     post {
         always {
-            junit allowEmptyResults: true, 
+            junit allowEmptyResults: true,
                   testResults: '**/target/surefire-reports/*.xml'
         }
     }
